@@ -1,10 +1,5 @@
 package com.campusconnect.common.dto;
 
-/**
- * Purpose: Read-model DTO representing an Exam in API responses.
- * Role: Decouples the API contract from the Exam domain entity so the entity is
- *       never exposed directly through the REST layer.
- */
 public class ExamResponse {
     private String id;
     private String name;

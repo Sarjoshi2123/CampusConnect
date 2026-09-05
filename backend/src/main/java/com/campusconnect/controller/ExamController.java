@@ -16,11 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Purpose: REST endpoints for creating and retrieving exams.
- * Role: Controller layer — delegates all logic to ExamService and only ever
- *       returns ExamResponse DTOs, never the Exam domain entity.
- */
 @RestController
 @RequestMapping("/api/exams")
 public class ExamController {
@@ -31,31 +26,17 @@ public class ExamController {
         this.examService = examService;
     }
 
-    /**
-     * Creates a new exam.
-     * @param request the exam's name and description.
-     * @return the created exam, as an ExamResponse.
-     */
     @PostMapping
     public ResponseEntity<ExamResponse> createExam(@RequestBody ExamCreateRequest request) {
         Exam exam = examService.createExam(request.getName(), request.getDescription());
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(exam));
     }
 
-    /**
-     * Retrieves an exam by ID.
-     * @param examId the exam ID.
-     * @return the exam, as an ExamResponse.
-     */
     @GetMapping("/{examId}")
     public ResponseEntity<ExamResponse> getExam(@PathVariable String examId) {
         return ResponseEntity.ok(toResponse(examService.getExam(examId)));
     }
 
-    /**
-     * Lists all exams.
-     * @return every exam currently in the system, as ExamResponse DTOs.
-     */
     @GetMapping
     public ResponseEntity<List<ExamResponse>> listExams() {
         List<ExamResponse> responses = examService.listExams().stream()

@@ -10,11 +10,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Purpose: Answers "how full is this exam slot" queries.
- * Role: Read-only service returning, per proctoring room belonging to a slot, its
- *       capacity, filled seats, and remaining available seats.
- */
 @Service
 public class RoomUtilizationService {
 
@@ -27,12 +22,6 @@ public class RoomUtilizationService {
         this.proctoringRoomRepository = proctoringRoomRepository;
     }
 
-    /**
-     * Reports filled vs. available capacity for every proctoring room belonging
-     * to the given exam slot.
-     * @param examSlotId the exam slot to report on.
-     * @return one RoomUtilizationResponse per room in that slot.
-     */
     public List<RoomUtilizationResponse> getUtilizationForSlot(String examSlotId) {
         if (!examSlotRepository.existsById(examSlotId)) {
             throw new ExamSlotNotFoundException("Exam slot not found: " + examSlotId);

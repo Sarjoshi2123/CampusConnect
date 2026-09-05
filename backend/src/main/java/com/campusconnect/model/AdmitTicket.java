@@ -2,11 +2,6 @@ package com.campusconnect.model;
 
 import java.util.Objects;
 
-/**
- * Purpose: Represents an admit ticket issued to a student upon successful registration.
- * Role: Domain entity for verification at check-in, tracking usage status.
- * Important Assumptions: AdmitTicket ID is unique. Linked to a specific registration.
- */
 public class AdmitTicket {
     private String id;
     private String studentId;

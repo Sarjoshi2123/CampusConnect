@@ -1,9 +1,3 @@
-// Purpose: "Create Proctoring Rooms" screen — adds a room with a max capacity
-//          to a chosen exam slot, and lists the rooms already created for it.
-// Role: Calls POST /api/slots/{slotId}/rooms on submit, and GET
-//       /api/slots/{slotId}/rooms to show the current room list for the
-//       selected slot (reloaded after every successful creation, and whenever
-//       the selected slot changes).
 import { useEffect, useState } from 'react'
 import { createRoom, listRoomsForSlot } from '../api/api.js'
 import { useExamSlots } from '../hooks/useExamSlots.js'
@@ -34,7 +28,7 @@ export default function CreateRoomsScreen() {
   useEffect(() => {
     setRoomsError('')
     loadRooms(slotId)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [slotId])
 
   async function handleSubmit(e) {

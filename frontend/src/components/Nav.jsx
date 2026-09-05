@@ -1,7 +1,3 @@
-// Purpose: Top-level navigation between the app's screens.
-// Role: Plain tab buttons — no routing library, since the scope is a fixed,
-//       small set of screens. Highlights the active tab and calls back to
-//       App.jsx to switch which screen is rendered.
 const SCREENS = [
   { key: 'create-exam', label: 'Create Exam' },
   { key: 'create-rooms', label: 'Create Rooms' },

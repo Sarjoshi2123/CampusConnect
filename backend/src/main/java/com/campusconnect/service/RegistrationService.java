@@ -30,30 +30,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * Purpose: Core business logic for registering students into exam slots and
- *          rescheduling existing registrations to a different slot.
- * Role: Orchestrates the domain rules that span multiple repositories/entities:
- *       - Registration: reject the request if the student already holds any other
- *         active (REGISTERED or CHECKED_IN) registration whose exam slot overlaps in
- *         time with the requested slot, regardless of which exam that other slot
- *         belongs to; otherwise allocate a room via the pluggable
- *         RoomAllocationStrategy and issue an admit ticket.
- *       - Reschedule: a reschedule may only move a student between slots of the
- *         SAME exam (rejected outright otherwise — moving between exams is a new
- *         registration decision, not a reschedule). Apply the same conflict/
- *         capacity checks against the *new* slot next. Only after the new slot is
- *         fully confirmed (room seat allocated) is the old registration cancelled
- *         and its room seat freed — so a failed reschedule never loses the
- *         student's original seat. A reschedule is rejected outright once the
- *         check-in window for the student's *current* slot has opened (now >=
- *         that slot's start time).
- * Important Assumptions: This class synchronizes register/reschedule mutations on
- *       a single lock so that concurrent requests racing for the last seat(s) in a
- *       room cannot both succeed (the in-memory repositories are individually
- *       thread-safe via ConcurrentHashMap, but "check capacity, then allocate" is a
- *       multi-step operation that needs its own critical section).
- */
 @Service
 public class RegistrationService {
 
@@ -83,15 +59,6 @@ public class RegistrationService {
         this.roomAllocationStrategy = roomAllocationStrategy;
     }
 
-    /**
-     * Registers a student into an exam slot: conflict-checks against every other
-     * active slot the student holds (across any exam), allocates a room with
-     * available capacity, persists the registration, and issues an admit ticket.
-     *
-     * @param studentId  the registering student.
-     * @param examSlotId the target exam slot.
-     * @return the created Registration paired with its issued AdmitTicket.
-     */
     public RegistrationResult register(String studentId, String examSlotId) {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new StudentNotFoundException("Student not found: " + studentId));
@@ -114,17 +81,6 @@ public class RegistrationService {
         }
     }
 
-    /**
-     * Reschedules an existing REGISTERED registration to a different exam slot.
-     * The new slot is conflict-checked and capacity-checked exactly as a fresh
-     * registration would be; the old room seat is freed only once the new slot's
-     * room has actually been allocated, so a rejected reschedule leaves the
-     * student's original seat completely untouched.
-     *
-     * @param registrationId the registration to move.
-     * @param newExamSlotId  the exam slot to move it to.
-     * @return the new Registration paired with its freshly issued AdmitTicket.
-     */
     public RegistrationResult reschedule(String registrationId, String newExamSlotId) {
         Registration oldRegistration = registrationRepository.findById(registrationId)
                 .orElseThrow(() -> new RegistrationNotFoundException("Registration not found: " + registrationId));
@@ -161,8 +117,6 @@ public class RegistrationService {
         synchronized (lock) {
             assertNoConflict(oldRegistration.getStudentId(), newSlot, oldRegistration.getId());
 
-            // Allocate the new seat BEFORE touching the old one: if this throws
-            // (room full), the old registration and its room seat are untouched.
             ProctoringRoom newRoom = allocateRoom(newSlot.getId());
 
             ProctoringRoom oldRoom = proctoringRoomRepository.findById(oldRegistration.getProctoringRoomId())
@@ -173,12 +127,7 @@ public class RegistrationService {
 
             oldRegistration.setStatus(Status.CANCELLED);
             registrationRepository.save(oldRegistration);
-            // Note: the old admit ticket is deliberately left as-is (not flagged
-            // "used") — AdmitTicketService rejects it at check-in via the
-            // registration's CANCELLED status instead, keeping "already used"
-            // (this exact ticket was checked in) and "no longer valid" (its
-            // registration was superseded) as two distinct, unambiguous reasons.
-
+            
             Registration newRegistration = new Registration(
                     UUID.randomUUID().toString(), oldRegistration.getStudentId(), newExam.getId(),
                     newSlot.getId(), newRoom.getId(), LocalDateTime.now(), Status.REGISTERED);
@@ -189,24 +138,11 @@ public class RegistrationService {
         }
     }
 
-    /**
-     * Retrieves a registration by ID.
-     * @param registrationId the registration ID.
-     * @return the Registration.
-     */
     public Registration getRegistration(String registrationId) {
         return registrationRepository.findById(registrationId)
                 .orElseThrow(() -> new RegistrationNotFoundException("Registration not found: " + registrationId));
     }
 
-    /**
-     * Verifies the student holds no other active (REGISTERED or CHECKED_IN)
-     * registration whose exam slot overlaps in time with the candidate slot.
-     * @param studentId               the student being registered/rescheduled.
-     * @param candidateSlot           the slot being requested.
-     * @param excludeRegistrationId   a registration ID to ignore (the one being
-     *                                replaced during a reschedule), or null.
-     */
     private void assertNoConflict(String studentId, ExamSlot candidateSlot, String excludeRegistrationId) {
         List<Registration> others = registrationRepository.findAllRegistrationsByStudentId(studentId).stream()
                 .filter(r -> r.getStatus() == Status.REGISTERED || r.getStatus() == Status.CHECKED_IN)
@@ -224,10 +160,6 @@ public class RegistrationService {
         }
     }
 
-    /**
-     * Two exam slots conflict when they fall on the same date and their
-     * [start, end) time ranges intersect.
-     */
     private boolean overlaps(ExamSlot a, ExamSlot b) {
         if (!a.getDate().equals(b.getDate())) {
             return false;
@@ -235,11 +167,6 @@ public class RegistrationService {
         return a.getStartTime().isBefore(b.getEndTime()) && b.getStartTime().isBefore(a.getEndTime());
     }
 
-    /**
-     * Selects a room with available capacity for the given slot via the
-     * configured RoomAllocationStrategy and commits the seat (increments
-     * occupancy). Must be called while holding {@link #lock}.
-     */
     private ProctoringRoom allocateRoom(String examSlotId) {
         List<ProctoringRoom> rooms = proctoringRoomRepository.findByExamSlotId(examSlotId);
         ProctoringRoom room = roomAllocationStrategy.selectRoom(rooms)

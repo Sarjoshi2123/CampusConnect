@@ -2,11 +2,6 @@ package com.campusconnect.model;
 
 import java.util.Objects;
 
-/**
- * Purpose: Represents an exam in the CampusConnect system.
- * Role: Domain entity holding exam-specific information.
- * Important Assumptions: Exam ID is unique.
- */
 public class Exam {
     private String id;
     private String name;

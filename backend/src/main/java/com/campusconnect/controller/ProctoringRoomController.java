@@ -16,11 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Purpose: REST endpoints for creating and retrieving proctoring rooms.
- * Role: Controller layer — delegates all logic to ProctoringRoomService and only
- *       ever returns ProctoringRoomResponse DTOs, never the domain entity.
- */
 @RestController
 @RequestMapping("/api/slots/{slotId}/rooms")
 public class ProctoringRoomController {
@@ -31,12 +26,6 @@ public class ProctoringRoomController {
         this.proctoringRoomService = proctoringRoomService;
     }
 
-    /**
-     * Creates a new proctoring room under an exam slot.
-     * @param slotId  the parent exam slot ID.
-     * @param request the room's capacity.
-     * @return the created room, as a ProctoringRoomResponse.
-     */
     @PostMapping
     public ResponseEntity<ProctoringRoomResponse> createRoom(@PathVariable String slotId,
                                                               @RequestBody ProctoringRoomCreateRequest request) {
@@ -44,11 +33,6 @@ public class ProctoringRoomController {
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(room));
     }
 
-    /**
-     * Lists all proctoring rooms belonging to an exam slot.
-     * @param slotId the parent exam slot ID.
-     * @return the slot's rooms, as ProctoringRoomResponse DTOs.
-     */
     @GetMapping
     public ResponseEntity<List<ProctoringRoomResponse>> listRoomsForSlot(@PathVariable String slotId) {
         List<ProctoringRoomResponse> responses = proctoringRoomService.listRoomsForSlot(slotId).stream()

@@ -1,8 +1,3 @@
-// Purpose: "Room Utilization" screen — shows filled vs. available capacity for
-//          every proctoring room in a chosen exam slot, refreshable on demand.
-// Role: Calls GET /api/slots/{slotId}/utilization, on slot selection and again
-//       whenever the user clicks Refresh (occupancy can change between page
-//       loads as other screens register/reschedule/check students in).
 import { useEffect, useState } from 'react'
 import { getRoomUtilization } from '../api/api.js'
 import { useExamSlots } from '../hooks/useExamSlots.js'

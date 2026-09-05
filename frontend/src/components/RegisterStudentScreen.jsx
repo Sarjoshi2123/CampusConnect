@@ -1,11 +1,3 @@
-// Purpose: "Register a Student" screen — registers a student into an exam slot
-//          and shows the returned admit ticket details, or the exact backend
-//          error (conflict, room full, student/slot not found, etc.).
-// Role: Calls POST /api/registrations. Also includes a small inline
-//       "create new student" mini-form (POST /api/students) so the screen is
-//       usable end-to-end without needing a separate student-creation screen —
-//       there is no student-listing endpoint, so a student id must either be
-//       already known or created here first.
 import { useState } from 'react'
 import { createStudent, registerStudent } from '../api/api.js'
 import { useExamSlots } from '../hooks/useExamSlots.js'

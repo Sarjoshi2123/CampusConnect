@@ -1,6 +1,3 @@
-// Purpose: Root application component.
-// Role: Renders the nav and switches between screens with plain useState (no
-//       routing library — the scope is a small, fixed set of screens).
 import { useState } from 'react'
 import Nav from './components/Nav.jsx'
 import CreateExamScreen from './components/CreateExamScreen.jsx'

@@ -10,12 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Purpose: REST endpoints for retrieving admit tickets and checking them in at
- *          the exam room.
- * Role: Controller layer — delegates all logic to AdmitTicketService and only
- *       ever returns AdmitTicketResponse DTOs, never the domain entity.
- */
 @RestController
 @RequestMapping("/api/admit-tickets")
 public class AdmitTicketController {
@@ -26,22 +20,11 @@ public class AdmitTicketController {
         this.admitTicketService = admitTicketService;
     }
 
-    /**
-     * Retrieves an admit ticket by ID.
-     * @param ticketId the admit ticket ID.
-     * @return the ticket, as an AdmitTicketResponse.
-     */
     @GetMapping("/{ticketId}")
     public ResponseEntity<AdmitTicketResponse> getTicket(@PathVariable String ticketId) {
         return ResponseEntity.ok(toResponse(admitTicketService.getTicket(ticketId)));
     }
 
-    /**
-     * Validates and checks in an admit ticket at the exam room, marking it used
-     * (single-use) and moving its registration to CHECKED_IN.
-     * @param ticketId the admit ticket ID presented by the student.
-     * @return the now-used ticket, as an AdmitTicketResponse.
-     */
     @PostMapping("/{ticketId}/check-in")
     public ResponseEntity<AdmitTicketResponse> checkIn(@PathVariable String ticketId) {
         return ResponseEntity.ok(toResponse(admitTicketService.checkIn(ticketId)));

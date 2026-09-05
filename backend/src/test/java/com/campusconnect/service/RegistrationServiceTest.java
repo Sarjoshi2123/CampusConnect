@@ -25,17 +25,6 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-/**
- * Purpose: Unit tests for RegistrationService, focused on the business-specific
- *          edge cases called out in the CampusConnect spec: cross-exam
- *          self-conflict, room capacity exhaustion, and a reschedule that either
- *          creates a new conflict or is attempted too late.
- * Role: Test suite for the service package. Uses real (in-memory) repository and
- *       service instances rather than mocks — the repositories are plain
- *       ConcurrentHashMap-backed classes with no external dependencies, so
- *       exercising the real conflict/allocation logic end-to-end is both simpler
- *       and more faithful than mocking each collaborator individually.
- */
 class RegistrationServiceTest {
 
     private StudentRepository studentRepository;
@@ -70,12 +59,6 @@ class RegistrationServiceTest {
                 proctoringRoomRepository, admitTicketRepository, new FillFirstRoomAllocationStrategy());
     }
 
-    /**
-     * Edge case: a student registered for one exam slot must be rejected when
-     * trying to register for a *different exam's* slot (e.g. run by a different
-     * partner university) whose time overlaps — the conflict check must span
-     * every exam the student is in, not just the same exam.
-     */
     @Test
     void register_rejectsSelfConflictAcrossDifferentExams() {
         Student student = studentService.createStudent("Asha Rao");
@@ -86,7 +69,7 @@ class RegistrationServiceTest {
         proctoringRoomService.createRoom(slotA.getId(), 5);
 
         Exam examB = examService.createExam("Partner University B - Midterm", "desc B");
-        // Overlaps slotA (10:00-11:00): starts 10:30, same day.
+        
         ExamSlot slotB = examSlotService.createSlot(examB.getId(), slotA.getDate(),
                 slotA.getStartTime().plusMinutes(30), 60);
         proctoringRoomService.createRoom(slotB.getId(), 5);
@@ -99,10 +82,6 @@ class RegistrationServiceTest {
         org.junit.jupiter.api.Assertions.assertNotNull(ex.getMessage());
     }
 
-    /**
-     * Edge case: every room belonging to the slot is already at capacity when a
-     * new registration attempt comes in.
-     */
     @Test
     void register_throwsWhenAllRoomsAreFull() {
         Student studentX = studentService.createStudent("Student X");
@@ -111,21 +90,16 @@ class RegistrationServiceTest {
         Exam exam = examService.createExam("Finals", "desc");
         ExamSlot slot = examSlotService.createSlot(exam.getId(), LocalDateTime.now().plusDays(1).toLocalDate(),
                 LocalDateTime.now().plusDays(1).withHour(9).withMinute(0).toLocalTime(), 90);
-        proctoringRoomService.createRoom(slot.getId(), 1); // only one seat, in one room
+        proctoringRoomService.createRoom(slot.getId(), 1); 
 
         registrationService.register(studentX.getId(), slot.getId());
 
         assertThrows(RoomCapacityExceededException.class,
                 () -> registrationService.register(studentY.getId(), slot.getId()));
-        // studentY must not have been registered as a side effect of the failed attempt.
+        
         assertEquals(0, registrationRepository.findAllRegistrationsByStudentId(studentY.getId()).size());
     }
 
-    /**
-     * Edge case: rescheduling into a slot that conflicts with *another* active
-     * registration the student already holds must fail, and must leave the
-     * original registration/room seat completely untouched.
-     */
     @Test
     void reschedule_rejectsWhenNewSlotConflictsWithAnotherActiveRegistration() {
         Student student = studentService.createStudent("Multi Exam Student");
@@ -137,13 +111,11 @@ class RegistrationServiceTest {
 
         Exam examB = examService.createExam("Exam B", "desc");
         ExamSlot otherActiveSlot = examSlotService.createSlot(examB.getId(), originalSlot.getDate(),
-                originalSlot.getStartTime().plusHours(4), 60); // 13:00-14:00, no overlap with originalSlot
+                originalSlot.getStartTime().plusHours(4), 60); 
         proctoringRoomService.createRoom(otherActiveSlot.getId(), 3);
 
-        // Same exam as the original registration (examA), so the reschedule passes
-        // the same-exam check and reaches the conflict check against otherActiveSlot.
         ExamSlot conflictingTargetSlot = examSlotService.createSlot(examA.getId(), originalSlot.getDate(),
-                otherActiveSlot.getStartTime().plusMinutes(30), 60); // 13:30-14:30, overlaps otherActiveSlot
+                otherActiveSlot.getStartTime().plusMinutes(30), 60); 
         proctoringRoomService.createRoom(conflictingTargetSlot.getId(), 3);
 
         RegistrationResult originalResult = registrationService.register(student.getId(), originalSlot.getId());
@@ -158,11 +130,6 @@ class RegistrationServiceTest {
         assertEquals(1, reloadedRoom.getCurrentOccupancy());
     }
 
-    /**
-     * Edge case: a reschedule submitted once the check-in window for the
-     * student's current slot has already opened (now >= slot start) must be
-     * rejected outright, before any conflict/capacity check on the new slot.
-     */
     @Test
     void reschedule_rejectsOnceCheckInWindowHasOpened() {
         Student student = studentService.createStudent("Late Rescheduler");
@@ -170,29 +137,19 @@ class RegistrationServiceTest {
         Exam exam = examService.createExam("Ongoing Exam", "desc");
         LocalDateTime pastStart = LocalDateTime.now().minusHours(1);
         ExamSlot currentSlot = examSlotService.createSlot(
-                exam.getId(), pastStart.toLocalDate(), pastStart.toLocalTime(), 120); // window opened 1h ago, closes in 1h
+                exam.getId(), pastStart.toLocalDate(), pastStart.toLocalTime(), 120); 
         proctoringRoomService.createRoom(currentSlot.getId(), 2);
 
         ExamSlot futureSlot = examSlotService.createSlot(exam.getId(), LocalDateTime.now().plusDays(3).toLocalDate(),
                 LocalDateTime.now().plusDays(3).withHour(9).withMinute(0).toLocalTime(), 60);
         proctoringRoomService.createRoom(futureSlot.getId(), 2);
 
-        // Register directly against the repository to seed a REGISTERED registration
-        // for an already-started slot (RegistrationService#register does not itself
-        // forbid registering into a slot whose window already opened; only reschedule
-        // enforces this cutoff).
         RegistrationResult result = registrationService.register(student.getId(), currentSlot.getId());
 
         assertThrows(InvalidRescheduleTimeException.class, () -> registrationService.reschedule(
                 result.getRegistration().getId(), futureSlot.getId()));
     }
 
-    /**
-     * Edge case: a reschedule must stay within the same exam — moving a student
-     * onto a slot belonging to a different exam is rejected outright, even when
-     * that slot has no conflict and plenty of capacity, and must leave the
-     * original registration/room seat completely untouched.
-     */
     @Test
     void reschedule_rejectsWhenNewSlotBelongsToDifferentExam() {
         Student student = studentService.createStudent("Cross Exam Rescheduler");
@@ -204,7 +161,7 @@ class RegistrationServiceTest {
 
         Exam examB = examService.createExam("Exam B", "desc");
         ExamSlot differentExamSlot = examSlotService.createSlot(examB.getId(), LocalDateTime.now().plusDays(5).toLocalDate(),
-                LocalDateTime.now().plusDays(5).withHour(9).withMinute(0).toLocalTime(), 60); // no overlap, plenty of capacity
+                LocalDateTime.now().plusDays(5).withHour(9).withMinute(0).toLocalTime(), 60); 
         proctoringRoomService.createRoom(differentExamSlot.getId(), 3);
 
         RegistrationResult originalResult = registrationService.register(student.getId(), originalSlot.getId());

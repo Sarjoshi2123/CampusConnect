@@ -11,11 +11,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.time.LocalDateTime;
 
-/**
- * Purpose: Provides global exception handling for the CampusConnect REST API.
- * Role: Catches custom exceptions and maps them to appropriate HTTP status codes and standardized error responses.
- * Important Assumptions: Ensures meaningful JSON error bodies are returned instead of stack traces.
- */
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 

@@ -4,11 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
 
-/**
- * Purpose: Represents an exam slot in the CampusConnect system.
- * Role: Domain entity holding scheduling information for an exam.
- * Important Assumptions: ExamSlot ID is unique. Belongs to an Exam.
- */
 public class ExamSlot {
     private String id;
     private String examId;
@@ -64,10 +59,6 @@ public class ExamSlot {
         this.durationMinutes = durationMinutes;
     }
 
-    /**
-     * Calculates the end time of the exam slot.
-     * @return LocalTime representing the end time.
-     */
     public LocalTime getEndTime() {
         return startTime.plusMinutes(durationMinutes);
     }

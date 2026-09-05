@@ -1,9 +1,3 @@
-// Purpose: "Mark No-Show" screen — manually triggers the no-show sweep for a
-//          chosen exam slot.
-// Role: Calls POST /api/slots/{slotId}/no-shows/process. The backend also runs
-//       this sweep automatically on a schedule (see NoShowService), but it
-//       exposes this same manual trigger too, so a UI for it belongs here
-//       rather than being left out as "automatic only".
 import { useState } from 'react'
 import { processNoShows } from '../api/api.js'
 import { useExamSlots } from '../hooks/useExamSlots.js'

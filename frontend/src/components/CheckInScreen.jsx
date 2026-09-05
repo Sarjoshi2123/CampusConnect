@@ -1,6 +1,3 @@
-// Purpose: "Check In" screen — submits an admit ticket id for check-in and
-//          shows success or the exact backend error (invalid / already-used).
-// Role: Calls POST /api/admit-tickets/{ticketId}/check-in.
 import { useState } from 'react'
 import { checkInTicket } from '../api/api.js'
 import ResultBox from './ResultBox.jsx'

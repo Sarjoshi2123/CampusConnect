@@ -3,11 +3,6 @@ package com.campusconnect.model;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/**
- * Purpose: Represents a student's registration for an exam slot in a specific proctoring room.
- * Role: Domain entity linking a student to an exam slot and room, tracking registration status.
- * Important Assumptions: Registration ID is unique. Student can only have one active registration per exam slot.
- */
 public class Registration {
     private String id;
     private String studentId;
@@ -21,7 +16,7 @@ public class Registration {
         REGISTERED,
         CHECKED_IN,
         NO_SHOW,
-        CANCELLED // Used for reschedule mechanism where old registration is effectively cancelled
+        CANCELLED 
     }
 
     public Registration(String id, String studentId, String examId, String examSlotId, String proctoringRoomId, LocalDateTime registrationTime, Status status) {

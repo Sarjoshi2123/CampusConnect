@@ -1,11 +1,5 @@
 package com.campusconnect.common.dto;
 
-/**
- * Purpose: Read-model DTO reporting how full a single proctoring room is for a
- *          given exam slot.
- * Role: Returned (as a list, one entry per room) by the room utilization query
- *       endpoint, so callers can see filled vs. available capacity per slot.
- */
 public class RoomUtilizationResponse {
     private String examSlotId;
     private String proctoringRoomId;

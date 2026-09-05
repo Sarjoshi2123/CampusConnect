@@ -14,11 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Purpose: REST endpoints for creating and retrieving students.
- * Role: Controller layer — delegates all logic to StudentService and only ever
- *       returns StudentResponse DTOs, never the Student domain entity.
- */
 @RestController
 @RequestMapping("/api/students")
 public class StudentController {
@@ -29,22 +24,12 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    /**
-     * Creates a new student.
-     * @param request the student's name.
-     * @return the created student, as a StudentResponse.
-     */
     @PostMapping
     public ResponseEntity<StudentResponse> createStudent(@Valid @RequestBody StudentCreateRequest request) {
         Student student = studentService.createStudent(request.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(student));
     }
 
-    /**
-     * Retrieves a student by ID.
-     * @param studentId the student ID.
-     * @return the student, as a StudentResponse.
-     */
     @GetMapping("/{studentId}")
     public ResponseEntity<StudentResponse> getStudent(@PathVariable String studentId) {
         return ResponseEntity.ok(toResponse(studentService.getStudent(studentId)));

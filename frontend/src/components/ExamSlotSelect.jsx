@@ -1,8 +1,3 @@
-// Purpose: Paired exam/slot dropdown selector.
-// Role: Reusable form control used by every screen that needs the user to pick
-//       an exam slot (Create Rooms, Register, Room Utilization, No-Show). Reads
-//       its data and selection state from the useExamSlots hook so that fetch
-//       logic is not duplicated in each screen.
 export default function ExamSlotSelect({ examSlots }) {
   const { exams, examsError, examId, setExamId, slots, slotsError, slotId, setSlotId } = examSlots
 

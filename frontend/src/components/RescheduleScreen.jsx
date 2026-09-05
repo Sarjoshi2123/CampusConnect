@@ -1,14 +1,3 @@
-// Purpose: "Reschedule" screen — moves an existing registration to a different
-//          slot of the SAME exam, showing success (with the new admit ticket)
-//          or the exact backend rejection reason.
-// Role: First looks up the registration (GET /api/registrations/{id}) and its
-//       exam (GET /api/exams/{examId}) to discover which exam it belongs to,
-//       then loads that exam's slots (GET /api/exams/{examId}/slots) to build
-//       a "new slot" dropdown restricted to the same exam — matching the
-//       backend's own same-exam rule (RegistrationService now rejects a
-//       cross-exam reschedule with DifferentExamRescheduleException), not just
-//       enforcing it client-side. Submits via
-//       POST /api/registrations/{id}/reschedule.
 import { useState } from 'react'
 import { getExam, getRegistration, listSlotsForExam, rescheduleRegistration } from '../api/api.js'
 import ResultBox from './ResultBox.jsx'

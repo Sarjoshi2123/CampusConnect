@@ -3,11 +3,6 @@ package com.campusconnect.common.dto;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-/**
- * Purpose: Read-model DTO representing an ExamSlot in API responses.
- * Role: Decouples the API contract from the ExamSlot domain entity so the entity is
- *       never exposed directly through the REST layer.
- */
 public class ExamSlotResponse {
     private String id;
     private String examId;

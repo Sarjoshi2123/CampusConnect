@@ -16,13 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Purpose: REST endpoints for registering students into exam slots, rescheduling
- *          existing registrations, and retrieving a registration by ID.
- * Role: Controller layer — delegates all business logic to RegistrationService
- *       and only ever returns RegistrationResponse DTOs, never the Registration
- *       or AdmitTicket domain entities.
- */
 @RestController
 @RequestMapping("/api/registrations")
 public class RegistrationController {
@@ -33,25 +26,12 @@ public class RegistrationController {
         this.registrationService = registrationService;
     }
 
-    /**
-     * Registers a student into an exam slot and issues an admit ticket.
-     * @param request the student and target exam slot.
-     * @return the new registration (with its issued admit ticket ID), as a
-     *         RegistrationResponse.
-     */
     @PostMapping
     public ResponseEntity<RegistrationResponse> register(@Valid @RequestBody RegistrationRequest request) {
         RegistrationResult result = registrationService.register(request.getStudentId(), request.getExamSlotId());
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(result));
     }
 
-    /**
-     * Reschedules an existing registration to a different exam slot.
-     * @param registrationId the registration to move.
-     * @param request        the target exam slot.
-     * @return the new registration (with its freshly issued admit ticket ID), as
-     *         a RegistrationResponse.
-     */
     @PostMapping("/{registrationId}/reschedule")
     public ResponseEntity<RegistrationResponse> reschedule(@PathVariable String registrationId,
                                                             @Valid @RequestBody RescheduleRequest request) {
@@ -59,12 +39,6 @@ public class RegistrationController {
         return ResponseEntity.ok(toResponse(result));
     }
 
-    /**
-     * Retrieves a registration by ID.
-     * @param registrationId the registration ID.
-     * @return the registration, as a RegistrationResponse (admitTicketId omitted;
-     *         look it up via the admit ticket API if needed).
-     */
     @GetMapping("/{registrationId}")
     public ResponseEntity<RegistrationResponse> getRegistration(@PathVariable String registrationId) {
         Registration registration = registrationService.getRegistration(registrationId);

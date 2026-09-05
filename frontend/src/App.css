@@ -1,7 +1,3 @@
-/* Purpose: Single global stylesheet for the CampusConnect frontend.
-   Role: Plain, generic styling only — no theme, no brand colors, no component
-         library. Just enough for forms/tables to be readable. */
-
 body {
   font-family: system-ui, sans-serif;
   margin: 0;

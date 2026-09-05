@@ -2,11 +2,6 @@ package com.campusconnect.common.dto;
 
 import java.time.LocalDateTime;
 
-/**
- * Purpose: Represents a standardized error response for the CampusConnect REST API.
- * Role: Provides a consistent structure for error messages returned to clients.
- * Important Assumptions: Includes timestamp, HTTP status, error message, and request path.
- */
 public class ErrorResponse {
     private LocalDateTime timestamp;
     private int status;
@@ -22,7 +17,6 @@ public class ErrorResponse {
         this.path = path;
     }
 
-    // Getters for all fields
     public LocalDateTime getTimestamp() {
         return timestamp;
     }

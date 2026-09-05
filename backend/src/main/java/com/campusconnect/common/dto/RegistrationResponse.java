@@ -2,12 +2,6 @@ package com.campusconnect.common.dto;
 
 import java.time.LocalDateTime;
 
-/**
- * Purpose: Read-model DTO representing a Registration (and the admit ticket issued
- *          alongside it, when one exists) in API responses.
- * Role: Decouples the API contract from the Registration domain entity so the
- *       entity is never exposed directly through the REST layer.
- */
 public class RegistrationResponse {
     private String id;
     private String studentId;

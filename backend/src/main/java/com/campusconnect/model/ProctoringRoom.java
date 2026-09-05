@@ -2,11 +2,6 @@ package com.campusconnect.model;
 
 import java.util.Objects;
 
-/**
- * Purpose: Represents a proctoring room allocated for a specific exam slot.
- * Role: Domain entity holding room capacity and current occupancy information.
- * Important Assumptions: ProctoringRoom ID is unique. Belongs to an ExamSlot.
- */
 public class ProctoringRoom {
     private String id;
     private String examSlotId;
@@ -17,7 +12,7 @@ public class ProctoringRoom {
         this.id = id;
         this.examSlotId = examSlotId;
         this.capacity = capacity;
-        this.currentOccupancy = 0; // Initialize with no occupancy
+        this.currentOccupancy = 0; 
     }
 
     public String getId() {

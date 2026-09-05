@@ -21,14 +21,6 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-/**
- * Purpose: Unit tests for AdmitTicketService, focused on the business-specific
- *          edge case of an invalid or already-used admit ticket being presented
- *          at check-in.
- * Role: Test suite for the service package. Uses real (in-memory) repository and
- *       service instances rather than mocks, for the same reasons documented in
- *       RegistrationServiceTest.
- */
 class AdmitTicketServiceTest {
 
     private RegistrationRepository registrationRepository;
@@ -61,21 +53,11 @@ class AdmitTicketServiceTest {
         admitTicketService = new AdmitTicketService(admitTicketRepository, registrationRepository);
     }
 
-    /**
-     * Edge case: an admit ticket ID that does not correspond to any issued ticket
-     * must be rejected as invalid, not silently accepted or reported as a generic
-     * server error.
-     */
     @Test
     void checkIn_rejectsUnknownTicketAsInvalid() {
         assertThrows(InvalidTicketException.class, () -> admitTicketService.checkIn("no-such-ticket-id"));
     }
 
-    /**
-     * Edge case: a ticket that has already been used for check-in must be
-     * rejected on a second attempt, and reported distinctly from "invalid" so
-     * front-desk staff can tell the two situations apart.
-     */
     @Test
     void checkIn_rejectsTicketThatWasAlreadyUsed() {
         Student student = studentService.createStudent("Checked-in Student");
@@ -87,17 +69,12 @@ class AdmitTicketServiceTest {
         RegistrationResult result = registrationService.register(student.getId(), slot.getId());
         String ticketId = result.getAdmitTicket().getId();
 
-        admitTicketService.checkIn(ticketId); // first check-in succeeds
+        admitTicketService.checkIn(ticketId); 
         assertEquals(Status.CHECKED_IN, registrationRepository.findById(result.getRegistration().getId()).orElseThrow().getStatus());
 
         assertThrows(AdmitTicketAlreadyUsedException.class, () -> admitTicketService.checkIn(ticketId));
     }
 
-    /**
-     * Edge case (variant): a ticket that was superseded by a reschedule (its
-     * registration moved to CANCELLED) must be rejected as invalid even though
-     * the ticket's own "used" flag might still be false at that instant.
-     */
     @Test
     void checkIn_rejectsTicketSupersededByReschedule() {
         Student student = studentService.createStudent("Rescheduling Student");

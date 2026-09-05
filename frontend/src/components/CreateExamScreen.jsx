@@ -1,9 +1,3 @@
-// Purpose: "Create Exam" screen — creates an exam plus one or more exam slots.
-// Role: Calls POST /api/exams once, then POST /api/exams/{examId}/slots once
-//       per filled-in slot row (sequentially, so a failure partway through
-//       still reports exactly which slots were created before the error).
-//       Shows the created exam/slot IDs on success since they are opaque UUIDs
-//       needed by every other screen (rooms, registration, etc.).
 import { useState } from 'react'
 import { createExam, createExamSlot } from '../api/api.js'
 import ResultBox from './ResultBox.jsx'

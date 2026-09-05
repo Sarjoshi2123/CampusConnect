@@ -2,11 +2,6 @@ package com.campusconnect.model;
 
 import java.util.Objects;
 
-/**
- * Purpose: Represents a student in the CampusConnect system.
- * Role: Domain entity holding student-specific information.
- * Important Assumptions: Student ID is unique.
- */
 public class Student {
     private String id;
     private String name;
