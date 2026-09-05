@@ -1,4 +1,4 @@
-package com.campusconnect.controller;
+﻿package com.campusconnect.controller;
 
 import com.campusconnect.common.dto.RegistrationRequest;
 import com.campusconnect.common.dto.RegistrationResponse;
@@ -34,7 +34,7 @@ public class RegistrationController {
 
     @PostMapping("/{registrationId}/reschedule")
     public ResponseEntity<RegistrationResponse> reschedule(@PathVariable String registrationId,
-                                                            @Valid @RequestBody RescheduleRequest request) {
+                                                             @Valid @RequestBody RescheduleRequest request) {
         RegistrationResult result = registrationService.reschedule(registrationId, request.getNewExamSlotId());
         return ResponseEntity.ok(toResponse(result));
     }

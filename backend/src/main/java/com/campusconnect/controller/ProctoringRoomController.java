@@ -47,3 +47,4 @@ public class ProctoringRoomController {
                 room.getCurrentOccupancy(), room.getAvailableCapacity());
     }
 }
+

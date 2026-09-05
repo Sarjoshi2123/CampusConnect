@@ -49,3 +49,4 @@ public class ExamController {
         return new ExamResponse(exam.getId(), exam.getName(), exam.getDescription());
     }
 }
+

@@ -74,3 +74,4 @@ public class ExamSlotController {
                 slot.getEndTime(), slot.getDurationMinutes());
     }
 }
+

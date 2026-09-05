@@ -36,3 +36,4 @@ public class AdmitTicketController {
                 ticket.getProctoringRoomId(), ticket.getRegistrationId(), ticket.isUsed());
     }
 }
+
